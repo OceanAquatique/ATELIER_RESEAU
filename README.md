@@ -1,83 +1,158 @@
 ------------------------------------------------------------------------------------------------------
-🎯Comprendre les bases du réseau (OSI, DHCP, NAT)
+🎯 Comprendre les bases du réseau (OSI, DHCP, NAT) — Atelier Master 2
 ------------------------------------------------------------------------------------------------------
-Cet atelier propose une exploration pratique des fondamentaux des réseaux informatiques à travers trois mécanismes essentiels : le modèle OSI, le protocole DHCP et la traduction d’adresses NAT.  
-  
-L’objectif est de visualiser  concrètement le fonctionnement du réseau, depuis la structure des communications jusqu’à l’attribution des adresses IP et la communication avec Internet. Dans un premier temps, nous allons découvrir le modèle OSI (Open Systems Interconnection) et son rôle comme cadre conceptuel pour organiser les communications réseau en 7 couches. Ensuite, notre atelier reviendra sur le protocole DHCP, qui permet d’attribuer automatiquement une configuration réseau (adresse IP, passerelle, DNS). Et enfin, l’atelier abordera le NAT (Network Address Translation), un mécanisme clé permettant à plusieurs machines d’un réseau privé de partager une même adresse IP publique pour accéder à Internet.  
-  
-**Notre atelier**  
+Cet atelier propose une exploration **pratique** des fondamentaux des réseaux à travers trois mécanismes essentiels — le modèle **OSI**, le protocole **DHCP** et la traduction d'adresses **NAT/PAT** — au niveau Master 2.
 
-![Screenshot Actions](Architecture_cible_Reseau.png)  
+Deux supports complémentaires sont mis à disposition :
+
+1. **Une application Flask de référence** (`flask_app.py`), à héberger sur PythonAnywhere, qui sert de fiche théorique structurée (JSON) sur chacun des trois mécanismes, et qui expose une route `/metrics` de QoS observable (latence p50/p90/p95/p99, débit, taux d'erreur, jitter, token-bucket).
+2. **Un mini-réseau conteneurisé** (répertoire [`lab/`](lab/)), constitué de 4 services Docker (DHCP server, NAT router, client, "Internet" simulé) sur lequel les étudiant·e·s **capturent de vrais paquets** (tcpdump/tshark), **manipulent des règles iptables**, et observent **la table conntrack en direct**.
+
+**Notre architecture cible**
+
+![Screenshot Actions](Architecture_cible_Reseau.png)
 
 -------------------------------------------------------------------------------------------------------
-🧩 Séquence 1 : GitHUB
+🧩 Séquence 1 : GitHub
 -------------------------------------------------------------------------------------------------------
-Objectif : Création d'un Repository GitHUB pour travailler avec son projet  
+Objectif : créer un Repository GitHub pour travailler avec votre fork du projet.
 Difficulté : Très facile (~10 minutes)
 -------------------------------------------------------------------------------------------------------
-**Faites un Fork de ce projet**. Si besoin, voici une vidéo d'accompagnement pour vous aider à "Forker" un Repository Github : [Forker ce projet](https://youtu.be/p33-7XQ29zQ)  
+**Faites un Fork de ce projet**. Si besoin, voici une vidéo d'accompagnement : [Forker ce projet](https://youtu.be/p33-7XQ29zQ)
 
 ---------------------------------------------------
-🧩 Séquence 2 : Création d'un site chez Pythonanywhere
+🧩 Séquence 2 : Hébergement sur PythonAnywhere
 ---------------------------------------------------
-Objectif : Créer un hébergement sur Pythonanywhere  
+Objectif : héberger l'application Flask de référence.
 Difficulté : Faible (~10 minutes)
 ---------------------------------------------------
 
-Rendez-vous sur **https://www.pythonanywhere.com/** et créez vous un compte. Puis créez un serveur Web **Flask 3.13**.  
-  
+Rendez-vous sur **https://www.pythonanywhere.com/**, créez un compte, puis un serveur Web **Flask 3.13**.
+
 ---------------------------------------------------------------------------------------------
-🧩 Séquence 3 : Les Actions GitHUB (Industrialisation Continue)
+🧩 Séquence 3 : GitHub Actions (Industrialisation Continue)
 ---------------------------------------------------------------------------------------------
-Objectif : Automatiser la mise à jour de votre hébergement Pythonanywhere  
+Objectif : automatiser la mise à jour de votre hébergement PythonAnywhere.
 Difficulté : Moyenne (~15 minutes)
 ---------------------------------------------------------------------------------------------
-Dans le Repository GitHUB que vous venez de créer précédemment lors de la séquence 1, vous avez un fichier intitulé deploy-pythonanywhere.yml et qui est déposé dans le répertoire .github/workflows. Ce fichier a pour objectif d'automatiser le déploiement de votre code sur votre site Pythonanywhere. Pour information, c'est ce que l'on appel des Actions GitHUB. Ce sont des scripts qui s'exécutent automatiquement lors de chaque Commit dans votre projet (C'est à dire à chaque modification de votre code). Ces scripts (appelés actions) sont au format yml qui est un format structuré proche de celui d'XML.  
+Le workflow `.github/workflows/deploy-pythonanywhere.yml` déploie automatiquement votre code à chaque push sur `main` via l'API PythonAnywhere.
 
-Pour utiliser cette Action (deploy-pythonanywhere.yml), **vous avez besoin de créer des secrets dans GitHUB** afin de ne pas divulguer des informations sensibles aux internautes de passage dans votre Repository comme vos login et password par exemple.  
+**Vous avez 4 secrets à créer** dans **Settings → Secrets and variables → Actions → New repository secret**&nbsp;:
 
-Pour cet atelier, **vous avez 4 secrets à créer** dans votre Repository GitHUB : **Settings → Secrets and variables → Actions → New repository secret**  
-  
-**PA_USERNAME** = votre username PythonAnywhere.  
-**PA_TOKEN** = votre API token. Token à créer dans pythonanywhere (Acount → API Token).  
-**PA_TARGET_DIR** = Web → Source code (ex: /home/monuser/myapp).  
-**PA_WEBAPP_DOMAIN** = votre site (ex: monuser.pythonanywhere.com).  
-  
-**Dernière étape :** Pour engager l'automatisation de votre première Action, vous devez cliquer sur le gros boutton vert dans l'onglet supérieur [Actions] dans votre Repository Github. Le boutton s'intitule "I understand my workflows, go ahead and enable them"   
+| Secret              | Valeur                                                   |
+| ------------------- | -------------------------------------------------------- |
+| `PA_USERNAME`       | votre username PythonAnywhere                            |
+| `PA_TOKEN`          | API token (Account → API Token)                          |
+| `PA_TARGET_DIR`     | Web → Source code (ex&nbsp;: `/home/monuser/myapp`)      |
+| `PA_WEBAPP_DOMAIN`  | votre site (ex&nbsp;: `monuser.pythonanywhere.com`)      |
 
-Notions acquises de cette séquence :  
-Vous avez vu dans cette séquence comment créer des secrets GiHUB afin de mettre en place de l'industrialisation continue.   
+**Dernière étape :** activez les workflows depuis l'onglet [Actions] du repo (« I understand my workflows, go ahead and enable them »).
 
 ---------------------------------------------------
 🗺️ Séquence 4 : OSI (Open Systems Interconnection)
 ---------------------------------------------------
-Vous pouvez observez les différentes couches OSI sur votre site **{site}.pythonanywhere.com/osi**  
-  
-**Exercice 1 : Définissez les termes suivants (Répondre directement dans GitHub)**    
-* Un protocole,  
-* Une entité protocolaire,
-* Un service,  
-* Une primitive de service,  
-* Une Service Data Unit (SDU) par rapport à une PDU  
-* Un point d'accès à un service SAP (Service Access Point)  
+Difficulté : Moyenne (~1 h)
+---------------------------------------------------
+
+**Côté théorie** — consultez la fiche structurée sur **`{site}.pythonanywhere.com/osi`**.
+
+**Côté pratique** — réalisez l'**[exercice 1](lab/exercises/01_osi_capture.md)** dans le lab Docker&nbsp;: capture HTTP au tcpdump, décodage couche par couche au `tshark`, et identification d'un champ concret pour chaque couche OSI.
+
+**Exercice 1.1 — Définitions (réponse directement dans ce README, sous forme de PR)**
+
+* Un **protocole** :
+* Une **entité protocolaire** :
+* Un **service** :
+* Une **primitive de service** :
+* Une **Service Data Unit (SDU)** par rapport à une PDU :
+* Un **point d'accès à un service (SAP)** :
+
+**Exercice 1.2 — Capture OSI (sortie du lab Docker)**
+
+Collez votre tableau « Couche / élément observé / valeur exemple » issu de [`lab/exercises/01_osi_capture.md`](lab/exercises/01_osi_capture.md).
 
 ---------------------------------------------------
 🗺️ Séquence 5 : Retour sur le protocole DHCP
 ---------------------------------------------------
-Vous pouvez observez le protocole DHCP sur votre site **{site}.pythonanywhere.com/dhcp**  
-  
-**Exercice 2 : Créer une image montrant l’encapsulation des couches suivantes**    
-_Collez votre image ici_ 
-  
---------------------------------------------------------------------
-🧠 Troubleshooting :
+Difficulté : Moyenne (~1 h)
 ---------------------------------------------------
-Objectif : Visualiser ses logs et découvrir ses erreurs
----------------------------------------------------
-Lors de vos développements, vous serez peut-être confronté à des erreurs systèmes car vous avez faits des erreurs de syntaxes dans votre code, faits de mauvaises déclarations de fonctions, appelez des modules inexistants, mal renseigner vos secrets, etc…  
-Les causes d'erreurs sont quasi illimitées. **Vous devez donc vous tourner vers les logs de votre système pour comprendre d'où vient le problème** :  
 
-Vos log sont accéssible via les URL suivantes :  
-* Access log : {site}.pythonanywhere.com.access.log
-* Error log : {site}.pythonanywhere.com.error.log
-* Server log: {site}.pythonanywhere.com.server.log
+**Côté théorie** — fiche sur **`{site}.pythonanywhere.com/dhcp`**.
+
+**Côté pratique** — réalisez l'**[exercice 2](lab/exercises/02_dhcp_dora.md)**&nbsp;: capturez un DORA complet sur le lab, identifiez les options DHCP des 4 paquets, répondez aux questions sur le broadcast, le `xid`, et le renouvellement T1/T2.
+
+**Exercice 2 — Capture DHCP (sortie du lab Docker)**
+
+* Collez votre **tableau DORA** (4 lignes).
+* Collez votre **configuration finale du client** (IP, masque, GW, DNS, bail).
+* Collez votre **schéma d'encapsulation** (Ethernet → IP → UDP → BOOTP/DHCP).
+
+---------------------------------------------------
+🗺️ Séquence 6 : NAT / PAT
+---------------------------------------------------
+Difficulté : Élevée (~1 h)
+---------------------------------------------------
+
+**Côté théorie** — fiche sur **`{site}.pythonanywhere.com/nat`**.
+
+**Côté pratique** — réalisez l'**[exercice 3](lab/exercises/03_nat_pat.md)**&nbsp;: observation de la table `conntrack`, suppression / restauration de la règle MASQUERADE, mise en place d'un DNAT entrant.
+
+**Exercice 3 — Sortie du lab Docker**
+
+* Collez **deux lignes de `conntrack -L`** annotées.
+* Répondez aux questions de synthèse (NAT vs PAT, NAT et sécurité, NAT en IPv6).
+
+---------------------------------------------------
+🗺️ Séquence 7 (Bonus) : Détection d'un rogue DHCP
+---------------------------------------------------
+Difficulté : Élevée (~1 h 30)
+---------------------------------------------------
+
+**Optionnel mais recommandé pour le M2** — réalisez l'**[exercice 4 (bonus)](lab/exercises/04_rogue_dhcp_bonus.md)**&nbsp;: ajoutez un faux serveur DHCP dans le lab, observez la course aux Offers, écrivez un script de détection passive, et comparez 3 contre-mesures (DHCP Snooping, 802.1X, détection passive).
+
+---------------------------------------------------
+🗺️ Séquence 8 : Métriques de QoS observées
+---------------------------------------------------
+
+L'app Flask expose `/metrics` qui calcule sur les requêtes récentes&nbsp;:
+* latence p50 / p90 / p95 / p99,
+* débit (req/s sur 60&nbsp;s),
+* taux d'erreur,
+* jitter (somme absolue des diffs entre latences consécutives),
+* politique QoS appliquée (token bucket).
+
+**Exercice 4 — Charge & QoS**
+
+Depuis votre poste, injectez une rafale et observez `/metrics`&nbsp;:
+
+```bash
+for i in $(seq 1 30); do curl -s -o /dev/null https://{site}.pythonanywhere.com/osi; done
+curl -s https://{site}.pythonanywhere.com/metrics | python -m json.tool
+```
+
+Commentez en 5-6 lignes&nbsp;:
+* Quelle est la **différence sémantique** entre p50 et p99&nbsp;? Pour quel type de SLO chacune est-elle pertinente&nbsp;?
+* À partir de combien de requêtes/seconde le token bucket commence-t-il à **rejeter** (HTTP 429)&nbsp;? Recoupez avec les paramètres `TOKENS_PER_SEC` et `BURST`.
+
+--------------------------------------------------------------------
+🧠 Troubleshooting
+---------------------------------------------------
+Objectif : visualiser vos logs et identifier vos erreurs.
+---------------------------------------------------
+
+**Côté PythonAnywhere** — accédez aux trois journaux suivants&nbsp;:
+* Access log&nbsp;: `{site}.pythonanywhere.com.access.log`
+* Error log&nbsp;: `{site}.pythonanywhere.com.error.log`
+* Server log&nbsp;: `{site}.pythonanywhere.com.server.log`
+
+**Côté lab Docker** — commandes utiles&nbsp;:
+
+```bash
+docker compose ps                          # état des services
+docker logs -f lab_dhcp_server             # journal DHCP en direct
+docker logs -f lab_nat_router              # règles iptables au démarrage
+docker exec lab_nat_router conntrack -L    # table de traduction NAT
+docker exec lab_internet tail -f /var/log/nginx/access.log
+```
+
+Si le NAT ne fonctionne pas (`curl` timeout), relancez **`sudo ./lab/host-setup.sh`** — voir [`lab/README.md`](lab/README.md) pour l'explication détaillée du `br_netfilter`.

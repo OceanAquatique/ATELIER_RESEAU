@@ -1,8 +1,8 @@
+import os
 import time
 import random
-import sqlite3
 from collections import deque
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
@@ -12,8 +12,6 @@ TOKENS_PER_SEC = 5           # rate limit (simulated QoS policy)
 BURST = 10
 tokens = BURST
 last_refill = time.time()
-
-DB_PATH = "/home/yourusername/networklab.db"  # optional if you want persistence
 
 def now_ms():
     return int(time.time() * 1000)
@@ -100,7 +98,8 @@ def index():
     <ul>
       <li><a href="/osi">/osi</a> — OSI mapping</li>
       <li><a href="/dhcp">/dhcp</a> — Protocole DHCP</li>
-      <li><a href="/nat">/nat</a> — Protocole DHCP</li>
+      <li><a href="/nat">/nat</a> — Protocole NAT</li>
+      <li><a href="/metrics">/metrics</a> — Métriques QoS (latence, débit, taux d'erreur)</li>
     </ul>
     """
 
@@ -310,6 +309,18 @@ def nat():
 
     return jsonify(info)
 
+@app.get("/metrics")
+def metrics():
+    """Métriques QoS observées sur les requêtes récentes (latence, débit, taux d'erreur)."""
+    allowed, retry_after = qos_admit()
+    if not allowed:
+        resp = jsonify({"error": "rate_limited", "retry_after_seconds": retry_after})
+        resp.status_code = 429
+        resp.headers["Retry-After"] = str(retry_after)
+        return resp
+    return jsonify(compute_metrics())
+
 if __name__ == "__main__":
     # utile en local uniquement
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    debug = os.environ.get("FLASK_DEBUG", "0") == "1"
+    app.run(host="0.0.0.0", port=5000, debug=debug)

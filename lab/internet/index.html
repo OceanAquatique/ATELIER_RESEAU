@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Pseudo-Internet (lab)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 4em auto; padding: 0 1em; }
+    code { background: #f3f3f3; padding: 0 .25em; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <h1>Site public simulé</h1>
+  <p>Si vous voyez cette page depuis le conteneur <code>client</code>, c'est que la
+     traversée NAT a fonctionné&nbsp;: votre paquet a été MASQUERADÉ par le
+     routeur <code>nat-router</code> avant d'arriver ici.</p>
+  <p>Essayez <a href="/whoami"><code>/whoami</code></a> pour voir l'IP source
+     telle que perçue côté serveur (celle du routeur NAT, pas celle du client).</p>
+  <p>Inspectez ensuite la table de traduction sur le routeur&nbsp;:
+     <code>docker exec lab_nat_router conntrack -L</code></p>
+</body>
+</html>

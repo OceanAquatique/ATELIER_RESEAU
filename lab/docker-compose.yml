@@ -1,0 +1,65 @@
+services:
+  internet:
+    build: ./internet
+    container_name: lab_internet
+    hostname: internet
+    networks:
+      wan:
+        ipv4_address: 172.20.0.10
+
+  nat-router:
+    build: ./nat-router
+    container_name: lab_nat_router
+    hostname: nat-router
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    sysctls:
+      - net.ipv4.ip_forward=1
+    networks:
+      wan:
+        ipv4_address: 172.20.0.254
+      lan:
+        ipv4_address: 172.20.1.254
+
+  dhcp-server:
+    build: ./dhcp-server
+    container_name: lab_dhcp_server
+    hostname: dhcp-server
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - NET_BIND_SERVICE
+    networks:
+      lan:
+        ipv4_address: 172.20.1.2
+
+  client:
+    build: ./client
+    container_name: lab_client
+    hostname: client
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    networks:
+      lan:
+        ipv4_address: 172.20.1.50
+    stdin_open: true
+    tty: true
+    command: sleep infinity
+
+networks:
+  wan:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: "false"
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+  lan:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: "false"
+    ipam:
+      config:
+        - subnet: 172.20.1.0/24
