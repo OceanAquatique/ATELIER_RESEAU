@@ -58,7 +58,7 @@ Difficulté : Moyenne (~1 h)
 
 **Côté pratique** — réalisez l'**[exercice 1](lab/exercises/01_osi_capture.md)** dans le lab Docker&nbsp;: capture HTTP au tcpdump, décodage couche par couche au `tshark`, et identification d'un champ concret pour chaque couche OSI.
 
-**Exercice 1.1 — Définitions (réponse directement dans ce README, sous forme de PR)**
+**Exercice 1.1 — Définitions (réponse directement dans ce README)**
 
 * Un **protocole** :
 * Une **entité protocolaire** :
