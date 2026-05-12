@@ -77,6 +77,67 @@ docker exec -it lab_client sh -c "tshark -r /tmp/http.pcap -V | less"
 > (Frame → Ethernet → IP → TCP → HTTP). Le filtre `-Y` cible un paquet
 > par son numéro pour éviter d'avoir à scroller dans toute la trace.
 
+## Visualisation assistée : `osi_inspect.py`
+
+La sortie brute de `tshark -V` est dense (plusieurs centaines de lignes par
+paquet). Un script Python est fourni dans ce dossier pour vous présenter,
+pour chaque trame, un **tableau structuré par couche OSI** avec en plus
+une **colonne d'explication pédagogique** pour chaque champ.
+
+### Lister les trames
+
+Depuis la racine du dépôt (l'hôte, pas l'intérieur du conteneur) :
+
+```bash
+./lab/exercises/osi_inspect.py
+```
+
+Vous obtenez la même vue compacte que `tshark` mais sans avoir à taper la
+commande complète. Repérez la trame qui vous intéresse — typiquement la
+trame portant `GET /` (ligne marquée `HTTP 141 GET / HTTP/1.1`).
+
+### Détailler une trame
+
+```bash
+./lab/exercises/osi_inspect.py 4         # trame n°4 — la requête HTTP
+./lab/exercises/osi_inspect.py 1         # trame n°1 — le SYN du handshake
+./lab/exercises/osi_inspect.py 8         # trame n°8 — la réponse 200 OK
+```
+
+Le script affiche, pour chaque couche OSI **présente** dans la trame, les
+champs clés avec **3 informations** :
+
+| Colonne       | Contenu                                       |
+| ------------- | --------------------------------------------- |
+| `Champ`       | Nom du champ tel qu'extrait par tshark        |
+| `Valeur`      | Valeur réelle observée dans **votre** capture |
+| `Explication` | À quoi sert ce champ, comment l'interpréter   |
+
+C'est exactement la matière dont vous avez besoin pour remplir le tableau
+*« Couche / Élément observé / Valeur exemple »* demandé dans la section
+suivante.
+
+### Réutilisation pour les exercices suivants
+
+Le script est générique. Pour disséquer une capture DHCP (exercice 2) ou
+NAT (exercice 3), pointez-le vers le bon conteneur et le bon fichier :
+
+```bash
+./lab/exercises/osi_inspect.py 1 --pcap /tmp/dhcp.pcap --container lab_dhcp_server
+./lab/exercises/osi_inspect.py 3 --pcap /tmp/nat.pcap  --container lab_nat_router
+```
+
+### Travail demandé avec ce script
+
+1. Lancez `./lab/exercises/osi_inspect.py` pour obtenir la liste des trames.
+2. Identifiez **une trame contenant du HTTP** (typiquement la requête `GET /`)
+   et **une trame de contrôle TCP** (SYN, ACK seul, ou FIN).
+3. Lancez le script avec le n° de chaque trame et **copiez la sortie**
+   dans le README de votre fork (bloc de code).
+4. Pour chacune des deux trames, **comptez et nommez** les couches OSI
+   visibles (utilisez la ligne `Pile présente : …` en en-tête). Expliquez
+   en 1 phrase pourquoi la couche 7 est absente sur la trame de contrôle TCP.
+
 ## À rendre dans le README de votre fork
 
 Pour **chaque couche OSI**, donnez **un exemple concret extrait de votre
