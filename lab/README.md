@@ -1,10 +1,19 @@
 # Lab Réseau — Mini-infrastructure conteneurisée
 
-Ce lab fournit un **vrai réseau** isolé constitué de 4 conteneurs Docker, sur
-lequel les étudiant·e·s manipulent **DHCP**, **NAT/PAT** et observent les
-couches OSI à travers des **captures de paquets réelles** (tcpdump / tshark).
+Ce lab fournit un **vrai réseau** isolé constitué de 4 conteneurs Docker
+(+ 1 conteneur *rogue* optionnel pour l'exercice 4 bonus), sur lequel les
+étudiant·e·s manipulent **DHCP**, **NAT/PAT** et observent les couches OSI
+à travers des **captures de paquets réelles** (tcpdump / tshark).
 
 ## Topologie
+
+![Topologie du lab](architecture.png)
+
+> Source éditable : [`architecture.dot`](architecture.dot) — régénérer
+> le PNG avec `dot -Tpng lab/architecture.dot -o lab/architecture.png`.
+
+<details>
+<summary>Variante ASCII (utile en terminal sans rendu d'image)</summary>
 
 ```
                   ┌──────────────────┐
@@ -18,13 +27,15 @@ couches OSI à travers des **captures de paquets réelles** (tcpdump / tshark).
                   └────────┬─────────┘
                            │  lan : 172.20.1.0/24
         ┌──────────────────┼───────────────────┐
-        │                                      │
-┌───────┴────────┐                    ┌────────┴─────────┐
-│  dhcp-server   │  172.20.1.2        │      client      │  172.20.1.50
-│  (dnsmasq)     │                    │ (dhclient/tcpdump│
-└────────────────┘                    │  curl/tshark)    │
-                                      └──────────────────┘
+        │                  │                   │
+┌───────┴────────┐ ┌───────┴──────────┐ ┌──────┴────────┐
+│  dhcp-server   │ │      client      │ │  rogue-dhcp ⚠ │
+│  172.20.1.2    │ │   172.20.1.50    │ │  172.20.1.99  │
+│  (dnsmasq)     │ │ (dhclient/tshark)│ │ (bonus ex. 4) │
+└────────────────┘ └──────────────────┘ └───────────────┘
 ```
+
+</details>
 
 | Conteneur     | Rôle                                                  | Outils principaux |
 | ------------- | ----------------------------------------------------- | ----------------- |
@@ -32,6 +43,7 @@ couches OSI à travers des **captures de paquets réelles** (tcpdump / tshark).
 | `nat-router`  | Passerelle, fait du PAT vers le WAN                   | iptables, conntrack, tcpdump |
 | `dhcp-server` | Distribue les baux DHCP sur le LAN                    | dnsmasq, tcpdump  |
 | `client`      | Poste utilisateur côté LAN                            | dhclient, tcpdump, tshark, curl, dig, traceroute |
+| `rogue-dhcp` ⚠ | **Bonus (ex. 4)** — faux serveur DHCP pour la course aux Offers | dnsmasq, tcpdump  |
 
 ## Pré-requis hôte (une seule fois)
 

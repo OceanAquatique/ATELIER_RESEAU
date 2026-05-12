@@ -1,0 +1,111 @@
+// Source Graphviz du diagramme d'architecture du lab.
+// Génération du PNG :
+//   dot -Tpng lab/architecture.dot -o lab/architecture.png
+digraph network_lab {
+    rankdir = LR;
+    bgcolor = "white";
+    fontname = "Helvetica";
+    nodesep = 0.45;
+    ranksep = 1.0;
+    splines = spline;
+
+    node [fontname = "Helvetica", style = "filled,rounded", shape = "box", fontsize = 11];
+    edge [fontname = "Helvetica", fontsize = 9];
+
+    labelloc = "t";
+    label = "Lab Réseau Docker — Topologie de l'atelier (OSI · DHCP · NAT · rogue DHCP)";
+    fontsize = 15;
+    fontcolor = "#212121";
+
+    // ========================================================
+    //  WAN — réseau « public » simulé
+    // ========================================================
+    subgraph cluster_wan {
+        label = "Bridge wan — 172.20.0.0/24";
+        style = "rounded,filled";
+        fillcolor = "#FFF3E0";
+        color = "#FB8C00";
+        fontcolor = "#E65100";
+        fontsize = 12;
+        margin = 14;
+
+        internet [
+            label = "internet\n(nginx)\n172.20.0.10",
+            fillcolor = "#FFCC80",
+            color = "#E65100"
+        ];
+    }
+
+    // ========================================================
+    //  NAT router — passerelle entre les deux bridges
+    // ========================================================
+    nat_router [
+        label = "nat-router\n──────────\nWAN : 172.20.0.254\nLAN : 172.20.1.254\n──────────\niptables MASQUERADE\nip_forward = 1",
+        fillcolor = "#A5D6A7",
+        color = "#2E7D32",
+        fontcolor = "black",
+        shape = "box3d"
+    ];
+
+    // ========================================================
+    //  LAN — réseau interne, avec serveur DHCP et clients
+    // ========================================================
+    subgraph cluster_lan {
+        label = "Bridge lan — 172.20.1.0/24";
+        style = "rounded,filled";
+        fillcolor = "#E3F2FD";
+        color = "#1976D2";
+        fontcolor = "#0D47A1";
+        fontsize = 12;
+        margin = 14;
+
+        dhcp_server [
+            label = "dhcp-server\n(dnsmasq, légitime)\n172.20.1.2",
+            fillcolor = "#90CAF9",
+            color = "#1565C0"
+        ];
+
+        client [
+            label = "client\n(Debian — dhclient,\ntcpdump, tshark, curl)\n172.20.1.50",
+            fillcolor = "#90CAF9",
+            color = "#1565C0"
+        ];
+
+        rogue [
+            label = "rogue-dhcp ⚠\n(bonus — exercice 4)\ndnsmasq pirate\n172.20.1.99",
+            fillcolor = "#FFCDD2",
+            color = "#C62828",
+            fontcolor = "#B71C1C",
+            style = "filled,rounded,dashed"
+        ];
+    }
+
+    // ========================================================
+    //  Liens physiques (bridges)
+    // ========================================================
+    internet     -> nat_router   [arrowhead = none, color = "#E65100", penwidth = 2];
+    nat_router   -> dhcp_server  [arrowhead = none, color = "#1565C0", penwidth = 2];
+    nat_router   -> client       [arrowhead = none, color = "#1565C0", penwidth = 2];
+    nat_router   -> rogue        [arrowhead = none, color = "#C62828", penwidth = 1.5, style = "dashed"];
+
+    // ========================================================
+    //  Légende
+    // ========================================================
+    subgraph cluster_legend {
+        label = "Légende";
+        style = "rounded,filled";
+        fillcolor = "#F5F5F5";
+        color = "#BDBDBD";
+        fontcolor = "#424242";
+        fontsize = 11;
+        margin = 10;
+        rank = "sink";
+
+        legend_legit [shape = "box", style = "filled,rounded", fillcolor = "#BBDEFB", color = "#1565C0", label = "service légitime", fontsize = 10];
+        legend_rogue [shape = "box", style = "filled,rounded,dashed", fillcolor = "#FFCDD2", color = "#C62828", label = "service malveillant", fontsize = 10];
+        legend_router [shape = "box3d", style = "filled,rounded", fillcolor = "#A5D6A7", color = "#2E7D32", label = "routeur multi-interfaces", fontsize = 10];
+
+        legend_legit -> legend_rogue [style = invis];
+        legend_rogue -> legend_router [style = invis];
+    }
+}
