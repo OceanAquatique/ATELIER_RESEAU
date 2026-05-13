@@ -139,8 +139,71 @@ NAT (exercice 3), pointez-le vers le bon conteneur et le bon fichier :
    en 1 phrase pourquoi la couche 7 est absente sur la trame de contrôle TCP.
 
 > 💬 **Votre réponse (sorties du script + analyse) :**
+> @OceanAquatique ➜ /workspaces/ATELIER_RESEAU (main) $ ./lab/exercises/osi_inspect.py 4
+
+====================================================================================================================================
+  Trame 4  |  141 octets  |  May 13, 2026 10:07:46.607592000 UTC
+  Pile présente : eth > ip > tcp > http
+====================================================================================================================================
+  OSI   | Protocole                | Champ              = Valeur                 | Explication
+------------------------------------------------------------------------------------------------------------------------------------
+  L2    | Liaison — Ethernet       |
+        |                          |   MAC source         = 16:ad:53:90:7c:bb      | Carte réseau émettrice sur le segment local
+        |                          |   MAC destination    = 16:34:3a:cd:f9:ff      | Récepteur sur le LAN = prochain saut (souvent le routeur, pas la dest. finale)
+        |                          |   EtherType          = 0x0800                 | Protocole L3 encapsulé : 0x0800=IPv4, 0x86DD=IPv6, 0x0806=ARP
+------------------------------------------------------------------------------------------------------------------------------------
+  L3    | Réseau — IPv4            |
+        |                          |   IP source          = 172.20.1.50            | Adresse logique de l'émetteur (couche 3)
+        |                          |   IP destination     = 172.20.0.10            | Destinataire final — peut traverser plusieurs routeurs
+        |                          |   TTL                = 64                     | Time To Live, décrémenté à chaque saut. Évite les boucles infinies
+        |                          |   Protocole encapsulé = 6                      | Indique ce qu'IP transporte : 6=TCP, 17=UDP, 1=ICMP
+        |                          |   Longueur totale    = 127                    | Taille en octets de l'en-tête IP + payload
+------------------------------------------------------------------------------------------------------------------------------------
+  L4    | Transport — TCP          |
+        |                          |   Port source        = 55986                  | Port éphémère choisi par le client (généralement > 1024)
+        |                          |   Port destination   = 80                     | Port du service : 80=HTTP, 443=HTTPS, 22=SSH, 25=SMTP...
+        |                          |   Flags              = ·······AP···           | Bits de contrôle : S=SYN, A=ACK, F=FIN, R=RST, P=PUSH
+        |                          |   Numéro de séquence = 1                      | Position du 1er octet de payload dans le flux TCP
+        |                          |   Numéro d'ACK       = 1                      | Prochain octet attendu en retour (cumulatif)
+        |                          |   Fenêtre            = 64256                  | Octets que je peux encore recevoir sans ACK (contrôle de flux)
+------------------------------------------------------------------------------------------------------------------------------------
+  L7    | Application — HTTP       |
+        |                          |   Méthode            = GET                    | Verbe HTTP : GET (lire), POST (envoyer), PUT, DELETE...
+        |                          |   URI                = /                      | Chemin de la ressource demandée côté serveur
+        |                          |   Version            = HTTP/1.1               | Version du protocole HTTP utilisée
+        |                          |   Host               = 172.20.0.10            | Hôte ciblé — permet le virtual hosting (plusieurs sites par IP)
+        |                          |   User-Agent         = curl/7.88.1            | Identifiant logiciel du client (navigateur, curl, bot...)
+------------------------------------------------------------------------------------------------------------------------------------
+@OceanAquatique ➜ /workspaces/ATELIER_RESEAU (main) $ ./lab/exercises/osi_inspect.py 1
+
+====================================================================================================================================
+  Trame 1  |  74 octets  |  May 13, 2026 10:07:46.607447000 UTC
+  Pile présente : eth > ip > tcp
+====================================================================================================================================
+  OSI   | Protocole                | Champ              = Valeur                 | Explication
+------------------------------------------------------------------------------------------------------------------------------------
+  L2    | Liaison — Ethernet       |
+        |                          |   MAC source         = 16:ad:53:90:7c:bb      | Carte réseau émettrice sur le segment local
+        |                          |   MAC destination    = 16:34:3a:cd:f9:ff      | Récepteur sur le LAN = prochain saut (souvent le routeur, pas la dest. finale)
+        |                          |   EtherType          = 0x0800                 | Protocole L3 encapsulé : 0x0800=IPv4, 0x86DD=IPv6, 0x0806=ARP
+------------------------------------------------------------------------------------------------------------------------------------
+  L3    | Réseau — IPv4            |
+        |                          |   IP source          = 172.20.1.50            | Adresse logique de l'émetteur (couche 3)
+        |                          |   IP destination     = 172.20.0.10            | Destinataire final — peut traverser plusieurs routeurs
+        |                          |   TTL                = 64                     | Time To Live, décrémenté à chaque saut. Évite les boucles infinies
+        |                          |   Protocole encapsulé = 6                      | Indique ce qu'IP transporte : 6=TCP, 17=UDP, 1=ICMP
+        |                          |   Longueur totale    = 60                     | Taille en octets de l'en-tête IP + payload
+------------------------------------------------------------------------------------------------------------------------------------
+  L4    | Transport — TCP          |
+        |                          |   Port source        = 55986                  | Port éphémère choisi par le client (généralement > 1024)
+        |                          |   Port destination   = 80                     | Port du service : 80=HTTP, 443=HTTPS, 22=SSH, 25=SMTP...
+        |                          |   Flags              = ··········S·           | Bits de contrôle : S=SYN, A=ACK, F=FIN, R=RST, P=PUSH
+        |                          |   Numéro de séquence = 0                      | Position du 1er octet de payload dans le flux TCP
+        |                          |   Numéro d'ACK       = 0                      | Prochain octet attendu en retour (cumulatif)
+        |                          |   Fenêtre            = 64240                  | Octets que je peux encore recevoir sans ACK (contrôle de flux)
+------------------------------------------------------------------------------------------------------------------------------------
+@OceanAquatique ➜ /workspaces/ATELIER_RESEAU (main) $ 
 >
-> _Remplacez ce texte par votre réponse._
 
 ## À rendre — répondez directement dans ce fichier
 
