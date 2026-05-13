@@ -139,7 +139,7 @@ NAT (exercice 3), pointez-le vers le bon conteneur et le bon fichier :
    en 1 phrase pourquoi la couche 7 est absente sur la trame de contrôle TCP.
 
 > 💬 **Votre réponse (sorties du script + analyse) :**
-> @OceanAquatique ➜ /workspaces/ATELIER_RESEAU (main) $ ./lab/exercises/osi_inspect.py 4
+@OceanAquatique ➜ /workspaces/ATELIER_RESEAU (main) $ ./lab/exercises/osi_inspect.py 4
 
 ====================================================================================================================================
   Trame 4  |  141 octets  |  May 13, 2026 10:07:46.607592000 UTC
@@ -203,7 +203,10 @@ NAT (exercice 3), pointez-le vers le bon conteneur et le bon fichier :
         |                          |   Fenêtre            = 64240                  | Octets que je peux encore recevoir sans ACK (contrôle de flux)
 ------------------------------------------------------------------------------------------------------------------------------------
 @OceanAquatique ➜ /workspaces/ATELIER_RESEAU (main) $ 
->
+
+
+
+
 
 ## À rendre — répondez directement dans ce fichier
 
@@ -212,13 +215,13 @@ capture** (champ, valeur observée). Justifiez en 1-2 phrases.
 
 | Couche OSI         | Élément observé dans la capture | Valeur exemple |
 | ------------------ | ------------------------------- | -------------- |
-| 7 — Application    | _ex. méthode HTTP_              | `GET /whoami HTTP/1.1` |
-| 6 — Présentation   | _ex. encodage / Content-Type_   | …              |
-| 5 — Session        | _ex. Keep-Alive, cookies_       | …              |
-| 4 — Transport      | _ex. port TCP, flags_           | …              |
-| 3 — Réseau         | _ex. IP source / destination_   | …              |
-| 2 — Liaison        | _ex. adresses MAC_              | …              |
-| 1 — Physique       | _non visible — pourquoi&nbsp;?_ | …              |
+| 7 — Application    | Méthode HTTP            | `GET / HTTP/1.1` |
+| 6 — Présentation   | Type de contenu HTTP | `Content-Type: text/html` |
+| 5 — Session        | Maintien de connexion HTTP       | `Connection: keep-alive` |
+| 4 — Transport      | Port TCP source et destination       | `55986 → 80, flag SYN ou ACK` |
+| 3 — Réseau         | IP source et destination   | `172.20.1.50 → 172.20.0.10` |
+| 2 — Liaison        | Encapsulation Ethernet / adresses MAC            | `à récupérer avec osi_inspect.py 4` |
+| 1 — Physique       | Non visible dans une capture pcap classique | `La capture montre des trames numériques, pas le signal électrique/physique` |
 
 ## Questions de réflexion
 
