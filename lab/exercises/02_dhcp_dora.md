@@ -37,14 +37,16 @@ docker logs --tail 40 lab_dhcp_server
 
 Complétez en vous appuyant sur **votre propre capture**&nbsp;:
 
-| Étape       | Émetteur (IP src) | Destinataire (IP dst) | MAC src / dst | Options DHCP notables |
-| ----------- | ----------------- | --------------------- | ------------- | --------------------- |
-| 1. Discover | `0.0.0.0`         | `255.255.255.255`     | …             | option 53 = …, option 55 = … |
-| 2. Offer    | …                 | …                     | …             | … |
-| 3. Request  | …                 | …                     | …             | … |
-| 4. ACK      | …                 | …                     | …             | … |
-
+| Étape | Émetteur (IP src) | Destinataire (IP dst) | MAC src / dst | Options DHCP notables |
+|---|---|---|---|---|
+| 1. Discover | `0.0.0.0` | `255.255.255.255` | `16:ad:53:90:7c:bb → ff:ff:ff:ff:ff:ff` | Option 53 = `Discover`, option 55 = liste des paramètres demandés : masque, passerelle, DNS, domaine, hostname, routes statiques, NTP… |
+| 2. Offer | `172.20.1.2` | `172.20.1.142` | `56:98:82:3b:02:cd → 16:ad:53:90:7c:bb` | Option 53 = `Offer`, option 54 = serveur DHCP `172.20.1.2`, option 51 = bail `43200s`, option 1 = masque `255.255.255.0`, option 3 = passerelle `172.20.1.254`, option 6 = DNS `1.1.1.1, 8.8.8.8` |
+| 3. Request | `0.0.0.0` | `255.255.255.255` | `16:ad:53:90:7c:bb → ff:ff:ff:ff:ff:ff` | Option 53 = `Request`, option 54 = serveur DHCP choisi `172.20.1.2`, option 50 = IP demandée `172.20.1.142`, option 55 = paramètres demandés |
+| 4. ACK | `172.20.1.2` | `172.20.1.142` | `56:98:82:3b:02:cd → 16:ad:53:90:7c:bb` | Option 53 = `ACK`, option 54 = serveur DHCP `172.20.1.2`, option 51 = bail `43200s`, option 58 = T1 `21600s`, option 59 = T2 `37800s`, option 1 = masque, option 3 = passerelle, option 6 = DNS |
 ### 2. Configuration finale du client
+
+
+```Dans cette capture, l’identifiant de transaction `xid` est identique dans les quatre paquets : `0xc5b35b3f`. Cela permet d’associer le Discover, l’Offer, le Request et l’ACK au même échange DHCP.```
 
 ```bash
 docker exec lab_client ip -4 addr show eth0
