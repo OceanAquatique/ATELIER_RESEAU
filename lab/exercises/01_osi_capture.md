@@ -139,9 +139,10 @@ NAT (exercice 3), pointez-le vers le bon conteneur et le bon fichier :
    en 1 phrase pourquoi la couche 7 est absente sur la trame de contrôle TCP.
 
 > 💬 **Votre réponse (sorties du script + analyse) :**
-@OceanAquatique ➜ /workspaces/ATELIER_RESEAU (main) $ ./lab/exercises/osi_inspect.py 4
 
-====================================================================================================================================
+
+```====================================================================================================================================
+@OceanAquatique ➜ /workspaces/ATELIER_RESEAU (main) $ ./lab/exercises/osi_inspect.py 4
   Trame 4  |  141 octets  |  May 13, 2026 10:07:46.607592000 UTC
   Pile présente : eth > ip > tcp > http
 ====================================================================================================================================
@@ -202,11 +203,34 @@ NAT (exercice 3), pointez-le vers le bon conteneur et le bon fichier :
         |                          |   Numéro d'ACK       = 0                      | Prochain octet attendu en retour (cumulatif)
         |                          |   Fenêtre            = 64240                  | Octets que je peux encore recevoir sans ACK (contrôle de flux)
 ------------------------------------------------------------------------------------------------------------------------------------
-@OceanAquatique ➜ /workspaces/ATELIER_RESEAU (main) $ 
+### Analyse des trames sélectionnées
 
+J’ai sélectionné deux trames représentatives de la capture :
 
+- la trame n°4, qui contient une requête HTTP `GET / HTTP/1.1` ;
+- la trame n°1, qui correspond à un paquet TCP de contrôle `SYN`.
 
+Pour la trame n°4, la pile présente est : `eth > ip > tcp > http`.
 
+On observe donc 4 couches OSI visibles :
+
+- couche 2 — Liaison de données : Ethernet ;
+- couche 3 — Réseau : IPv4 ;
+- couche 4 — Transport : TCP ;
+- couche 7 — Application : HTTP.
+
+Cette trame transporte une donnée applicative, car elle contient une requête HTTP envoyée par le client vers le serveur.
+
+Pour la trame n°1, la pile présente est : `eth > ip > tcp`.
+
+On observe donc 3 couches OSI visibles :
+
+- couche 2 — Liaison de données : Ethernet ;
+- couche 3 — Réseau : IPv4 ;
+- couche 4 — Transport : TCP.
+
+La couche 7 est absente sur cette trame de contrôle TCP, car le paquet `SYN` sert uniquement à initier la connexion TCP et ne transporte pas encore de donnée applicative comme une requête HTTP 
+```
 
 ## À rendre — répondez directement dans ce fichier
 
@@ -215,12 +239,12 @@ capture** (champ, valeur observée). Justifiez en 1-2 phrases.
 
 | Couche OSI         | Élément observé dans la capture | Valeur exemple |
 | ------------------ | ------------------------------- | -------------- |
-| 7 — Application    | Méthode HTTP            | `GET / HTTP/1.1` |
+| 7 — Application    | Méthode HTTP  | `GET / HTTP/1.1` |
 | 6 — Présentation   | Type de contenu HTTP | `Content-Type: text/html` |
-| 5 — Session        | Maintien de connexion HTTP       | `Connection: keep-alive` |
-| 4 — Transport      | Port TCP source et destination       | `55986 → 80, flag SYN ou ACK` |
-| 3 — Réseau         | IP source et destination   | `172.20.1.50 → 172.20.0.10` |
-| 2 — Liaison        | Encapsulation Ethernet / adresses MAC            | `à récupérer avec osi_inspect.py 4` |
+| 5 — Session        | Maintien de connexion HTTP  | `Connection: keep-alive` |
+| 4 — Transport      | Port TCP source et destination  | `55986 → 80, flag SYN ou ACK` |
+| 3 — Réseau         | IP source et destination | `172.20.1.50 → 172.20.0.10` |
+| 2 — Liaison        | Adresses MAC Ethernet |  `16:ad:53:90:7c:bb → 16:34:3a:cd:f9:ff` |
 | 1 — Physique       | Non visible dans une capture pcap classique | `La capture montre des trames numériques, pas le signal électrique/physique` |
 
 ## Questions de réflexion
