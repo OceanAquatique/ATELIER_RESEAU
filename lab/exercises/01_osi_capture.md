@@ -254,9 +254,11 @@ capture** (champ, valeur observée). Justifiez en 1-2 phrases.
 vous apprend cette observation sur la portée de chaque couche&nbsp;?
 
 > 💬 **Votre réponse :**
->
-> _Remplacez ce texte par votre réponse._
+```
+L’adresse MAC observée n’est pas celle du serveur `internet`, car une adresse MAC n’a de portée que sur le réseau local immédiat. Le serveur `internet` est situé derrière un routeur : lorsque le paquet revient vers le client, le `nat-router` recrée une nouvelle trame Ethernet sur le LAN, avec sa propre adresse MAC comme adresse source.
 
+Cette observation montre que la couche 2, liaison de données, fonctionne uniquement saut par saut, entre deux équipements voisins. À l’inverse, la couche 3, réseau, permet d’identifier une communication IP entre deux machines situées sur des réseaux différents.
+```
 **Question 2.** Vous capturez sur `eth0` du client (côté LAN). Dans votre
 trace, l'**IP source** sortante est `172.20.1.50`. Pourtant, `curl /whoami`
 rapporte que le serveur perçoit `172.20.0.254`. Expliquez cette différence
@@ -264,8 +266,13 @@ et indiquez **où** il faudrait capturer pour voir l'IP réécrite.
 *Astuce&nbsp;:* `docker exec lab_nat_router tcpdump -i any -nn -c 10 host 172.20.0.10`.
 
 > 💬 **Votre réponse :**
->
-> _Remplacez ce texte par votre réponse._
+```
+La capture est faite sur `eth0` du client, donc avant le passage par le routeur NAT. À cet endroit, le paquet sort encore avec l’adresse IP source réelle du client : `172.20.1.50`.
+
+Ensuite, lorsque le paquet traverse le `nat-router`, celui-ci applique une traduction d’adresse. Il remplace l’adresse IP source du client par son adresse côté WAN : `172.20.0.254`. C’est pour cela que le serveur `internet`, via `/whoami`, indique qu’il perçoit la source comme `172.20.0.254`.
+
+Pour voir l’adresse IP réécrite, il faudrait capturer sur le `nat-router`, côté sortie vers le réseau WAN, par exemple avec une capture sur le conteneur `lab_nat_router`.
+```
 
 **Question 3.** Lancez `curl -v https://...` vers un site HTTPS public
 (depuis l'hôte, pas le lab). Quelle couche change visiblement par
@@ -273,8 +280,13 @@ rapport au HTTP du lab&nbsp;? Quelles couches **disparaissent** de votre
 visibilité&nbsp;?
 
 > 💬 **Votre réponse :**
->
-> _Remplacez ce texte par votre réponse._
+```
+Avec HTTPS, la couche application n’est plus visible en clair comme dans le HTTP du lab. Dans la capture HTTP, on pouvait lire directement la méthode `GET`, l’URI `/`, les en-têtes HTTP et la réponse du serveur. En HTTPS, ces éléments sont protégés par TLS.
+
+La couche qui change visiblement est donc la couche liée à la sécurisation et au chiffrement des échanges : on observe une négociation TLS avant les données applicatives. Les couches basses restent visibles, notamment Ethernet, IP et TCP, car elles sont nécessaires pour transporter le flux réseau.
+
+En revanche, le contenu applicatif HTTP disparaît de la visibilité directe : on ne peut plus lire clairement la méthode HTTP, le chemin demandé, les en-têtes complets ou le corps de la réponse. On voit le transport chiffré, mais pas le contenu applicatif en clair.
+```
 
 **Question 4.** La couche 5 (Session) est très peu visible dans une
 capture HTTP/1.1. Donnez **deux mécanismes applicatifs** qui jouent le
@@ -282,8 +294,13 @@ rôle de la couche session, et expliquez pourquoi ils sont implémentés
 « plus haut »&nbsp;dans la pile.
 
 > 💬 **Votre réponse :**
->
-> _Remplacez ce texte par votre réponse._
+```
+Deux mécanismes applicatifs qui jouent un rôle proche de la couche session sont les cookies de session et les jetons d’authentification, comme les tokens ou les identifiants de session.
+
+Les cookies permettent à une application web de reconnaître un utilisateur entre plusieurs requêtes HTTP. Les tokens d’authentification permettent aussi de maintenir un état logique entre le client et le serveur, par exemple pour savoir qu’un utilisateur est connecté.
+
+Ces mécanismes sont implémentés plus haut dans la pile, au niveau applicatif, car HTTP est un protocole essentiellement sans état. Ce sont donc les applications web qui doivent gérer la continuité de session, l’identité utilisateur, l’authentification et le contexte métier.
+```
 
 ## Pièges fréquents
 
